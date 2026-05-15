@@ -37,6 +37,10 @@ export class InventoryPage extends basepage {
         this.inventoryItemDescription = this.page.locator("[data-test*=-title-link]");
     }
 
+    /**
+     * Click on filter
+     * @param index Index number of the item
+     */
     async clickFiltersOptions(index:number) {
         await this.filters.click();
         await this.filters.selectOption({index});
