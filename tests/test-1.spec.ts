@@ -69,8 +69,55 @@ test.describe('Tests described in TEST_PLAN.md', () => {
 
   });
   
-  test(`Failling test`, async ({ page }) => {
+  test(`Multiple purchase with Standard User is OK`, async ({ page }) => {
+    
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Standard);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+    await Inventory.ResetState();
+    
+    await Inventory.AddOneItem(0);
+
+    const InitialCount = await Inventory.getCartBadgeCount();
+
+    await Inventory.AddMultipleItems(3);
+
+    const FinalCount = await Inventory.getCartBadgeCount();
+
+    //first check to cart badge
+    expect(await Inventory.getCartBadgeCount()).toBe(4);
+    //check to cart badge has increased
+    expect(FinalCount).toBeGreaterThan(InitialCount);
+
+    await Inventory.cartLink.click();
+
+    Cart = new CartPage(page);
+
+    //first check to items count
+    expect(await Cart.getCartItems()).toBe(4);
+    await Cart.checkoutButton.click();
+
+    CheckOutCustomer = new CheckoutCustomerPage(page);
+
+    await CheckOutCustomer.fillCustomerData("Martin", "Prueba", "1111");
+    await CheckOutCustomer.clickContinue();
+
+    CheckOutReview = new CheckoutReviewPage(page);
+
+
+    //last check to cart badge
+    expect(await CheckOutReview.getCartBadgeCount()).toBe(4);
+    //last check to items count
+    expect(await CheckOutReview.getReviewedItems()).toBe(4);
+
+    await CheckOutReview.clickFinish();
+
     CheckOutComplete = new CompletePage(page);
+
+    //check to final message
     expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
   });
 

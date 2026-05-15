@@ -6,28 +6,39 @@ import { basepage } from './basepage';
  */
 export class InventoryPage extends basepage {
 
-    menuButton: Locator;
+    menuButtonOpen: Locator;
+    menuButtonClose: Locator;
     inventoryList: Locator;
     addToCartButton: Locator;
     cartLink: Locator;
     errorMessage: Locator;
     inventoryItemName: Locator;
+    reset: Locator;
 
     constructor(page: Page) {
         super(page);
-        this.menuButton = this.page.getByRole('button', { name: 'Open Menu' });
+        this.menuButtonOpen = this.page.getByRole('button', { name: 'Open Menu' });
+        this.menuButtonClose = this.page.getByRole('button', { name: 'Close Menu' });
         this.inventoryList = this.page.locator("[data-test=inventory-item-description]");
         this.addToCartButton = this.page.locator("[data-test*='add-to-cart']");
         this.cartLink = this.page.locator("[data-test=shopping-cart-link]");
         this.errorMessage = this.page.locator('#error');
         this.inventoryItemName = this.page.locator("[data-test=inventory-item-name]");
+        this.reset = this.page.locator("[data-test=reset-sidebar-link]");
     }
 
     /**
      * Opens the menu
      */
-    async ClickMenu() {
-        await this.menuButton.click();
+    async OpenMenu() {
+        await this.menuButtonOpen.click();
+    }
+
+    /**
+     * Closes the menu
+     */
+    async CloseMenu() {
+        await this.menuButtonClose.click();
     }
 
     /**
@@ -40,11 +51,11 @@ export class InventoryPage extends basepage {
 
     /**
      * Add multiple items to the cart
-     * @param indices - Array of indices of items to add
+     * @param count - Count of items to add
      */
-    async AddMultipleItems(indexs: number[]) {
-        for (const index of indexs) {
-            await this.addToCartButton.nth(index).click();
+    async AddMultipleItems(count: number) {
+        for (let i = 0; i < count; i++) {
+            await this.addToCartButton.nth(i).click();
         }
     }
 
@@ -61,5 +72,14 @@ export class InventoryPage extends basepage {
      */
     async GoToCart() {
         await this.cartLink.click();
+    }
+
+    /**
+     * Click on the reset state button
+     */
+    async ResetState(){
+        await this.OpenMenu();
+        await this.reset.click();
+        await this.CloseMenu();
     }
 }
