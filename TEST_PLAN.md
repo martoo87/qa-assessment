@@ -16,3 +16,5 @@ I will let out of scope performance, glitch or cosmetic tests in order to focus 
 
 The area with more risk is definitely the purchase module due it is the main purpose of the app.
 Also it is important to check the login for the standard user and menu options displayed for user's basic actions.
+
+NOTE: I used AI for generate several comments in the app.

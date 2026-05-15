@@ -15,7 +15,7 @@ let Login, Inventory, Cart, CheckOutCustomer, CheckOutReview, CheckOutComplete;
 
 test.beforeEach(async ({ page }) => {
   console.log(`Running ${test.info().title}`);
-      await page.goto(Constants.BASE_URL);
+  await page.goto(Constants.BASE_URL);
 });
 
 test.describe('Tests described in TEST_PLAN.md', () => {
@@ -68,9 +68,9 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
 
   });
-  
+
   test(`Multiple purchase with Standard User is OK`, async ({ page }) => {
-    
+
     Login = new LoginPage(page);
     await Login.sendTextUser(users.Standard);
     await Login.sendTextPass(secret.getPassword());
@@ -78,7 +78,7 @@ test.describe('Tests described in TEST_PLAN.md', () => {
 
     Inventory = new InventoryPage(page);
     await Inventory.ResetState();
-    
+
     await Inventory.AddOneItem(0);
 
     const InitialCount = await Inventory.getCartBadgeCount();
@@ -121,8 +121,89 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
   });
 
-});
-  
-  test.afterEach(async ({ page }) => {
-    await page.close();
+  test(`Test menu items in Inventory page with Standard User`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Standard);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+    await Inventory.OpenMenu();
+    expect(await Inventory.getMenuItemsCount()).toBe(4);
+    expect(await Inventory.getTextMenuItem(0)).toBe("All Items");
+    expect(await Inventory.getTextMenuItem(1)).toBe("About");
+    expect(await Inventory.getTextMenuItem(2)).toBe("Logout");
+    expect(await Inventory.getTextMenuItem(3)).toBe("Reset App State");
+    await Inventory.CloseMenu();
+
   });
+
+  test(`Test AZ filters Inventory page with Standard User`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Standard);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+
+    let titles = await Inventory.GetAllItemDescriptions();
+    
+    //order
+    let manualOrderedTitles = titles.toSorted();
+
+    //filter
+    await Inventory.clickFiltersOptions(0);
+    titles = await Inventory.GetAllItemDescriptions();
+
+    //compare
+    expect(titles).toEqual(manualOrderedTitles);
+
+    //reverse order
+    manualOrderedTitles = titles.reverse();
+
+    //reverse filter
+    await Inventory.clickFiltersOptions(1);
+    titles = await Inventory.GetAllItemDescriptions();
+
+    //compare
+    expect(titles).toEqual(manualOrderedTitles);
+
+  });
+
+  test(`Test Price filters Inventory page with Standard User`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Standard);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+
+    let prices = await Inventory.GetAllItemPrices();
+    
+    //order
+    let manualOrderedPrices = prices.sort((n1, n2) => n1 > n2 ? 1 : -1);
+
+    //filter
+    await Inventory.clickFiltersOptions(2);
+    prices = await Inventory.GetAllItemPrices();
+
+    //compare
+    expect(prices).toEqual(manualOrderedPrices);
+
+    //reverse order
+    manualOrderedPrices = prices.reverse();
+
+    //reverse filter
+    await Inventory.clickFiltersOptions(3);
+    prices = await Inventory.GetAllItemPrices();
+
+    //compare
+    expect(prices).toEqual(manualOrderedPrices);
+
+  });
+
+});
+
+test.afterEach(async ({ page }) => {
+  await page.close();
+});
