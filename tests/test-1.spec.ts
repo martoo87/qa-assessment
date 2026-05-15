@@ -13,10 +13,15 @@ const secret = new Secret();
 const users = new Users();
 let Login, Inventory, Cart, CheckOutCustomer, CheckOutReview, CheckOutComplete;
 
-test.describe('Login Tests', () => {
+test.beforeEach(async ({ page }) => {
+  console.log(`Running ${test.info().title}`);
+      await page.goto(Constants.BASE_URL);
+});
+
+test.describe('Tests described in TEST_PLAN.md', () => {
+
   test(`Single purchase with Standard User is OK`, async ({ page }) => {
 
-    await page.goto(Constants.BASE_URL);
     Login = new LoginPage(page);
     await Login.sendTextUser(users.Standard);
     await Login.sendTextPass(secret.getPassword());
@@ -63,8 +68,14 @@ test.describe('Login Tests', () => {
     expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
 
   });
-});
+  
+  test(`Failling test`, async ({ page }) => {
+    CheckOutComplete = new CompletePage(page);
+    expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
+  });
 
-test.afterEach(async ({ page }) => {
-  await page.close();
 });
+  
+  test.afterEach(async ({ page }) => {
+    await page.close();
+  });
