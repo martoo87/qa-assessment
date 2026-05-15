@@ -16,7 +16,7 @@ export class LoginPage extends basepage {
         this.submitButton = this.page.getByRole('button', { name: 'Login' });
         this.username = this.page.getByPlaceholder('Username');
         this.password = page.getByPlaceholder('Password');
-        this.errorMessage = this.page.locator('#error');
+        this.errorMessage = this.page.locator('[data-test=error]');
     }
 
     /**

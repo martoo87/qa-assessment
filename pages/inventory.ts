@@ -34,7 +34,6 @@ export class InventoryPage extends basepage {
         this.filters = this.page.locator("[data-test='product-sort-container']");
         this.inventoryItemPrice = this.page.locator("[data-test=inventory-item-price]");
         this.inventoryItemImage = this.page.locator("[data-test=inventory-item-img] img");
-        //this.inventoryItemDescription = this.page.locator("[data-test=inventory-item-description]");
         this.inventoryItemDescription = this.page.locator("[data-test*=-title-link]");
     }
 

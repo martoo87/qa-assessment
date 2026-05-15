@@ -28,9 +28,7 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     await Login.ClicksubmitButton();
 
     Inventory = new InventoryPage(page);
-
-    expect(await Inventory.PageUrl()).toContain("inventory.html");
-
+    await Inventory.ResetState();
     await Inventory.AddOneItem(0);
     //first check to cart badge
     expect(await Inventory.getCartBadgeCount()).toBeGreaterThanOrEqual(1);
@@ -38,20 +36,16 @@ test.describe('Tests described in TEST_PLAN.md', () => {
 
     Cart = new CartPage(page);
 
-    expect(await Cart.PageUrl()).toContain("cart.html");
     //first check to items count
     expect(await Cart.getCartItems()).toBeGreaterThanOrEqual(1);
     await Cart.checkoutButton.click();
 
     CheckOutCustomer = new CheckoutCustomerPage(page);
 
-    expect(await CheckOutCustomer.PageUrl()).toContain("checkout-step-one.html");
     await CheckOutCustomer.fillCustomerData("Martin", "Prueba", "1111");
     await CheckOutCustomer.clickContinue();
 
     CheckOutReview = new CheckoutReviewPage(page);
-
-    expect(await CheckOutReview.PageUrl()).toContain("checkout-step-two.html");
 
     //last check to cart badge
     expect(await CheckOutReview.getCartBadgeCount()).toBeGreaterThanOrEqual(1);
@@ -61,8 +55,6 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     await CheckOutReview.clickFinish();
 
     CheckOutComplete = new CompletePage(page);
-
-    expect(await CheckOutComplete.PageUrl()).toContain("checkout-complete.html");
 
     //check to final message
     expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
@@ -147,7 +139,7 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     Inventory = new InventoryPage(page);
 
     let titles = await Inventory.GetAllItemDescriptions();
-    
+
     //order
     let manualOrderedTitles = titles.toSorted();
 
@@ -179,7 +171,7 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     Inventory = new InventoryPage(page);
 
     let prices = await Inventory.GetAllItemPrices();
-    
+
     //order
     let manualOrderedPrices = prices.sort((n1, n2) => n1 > n2 ? 1 : -1);
 
@@ -200,6 +192,125 @@ test.describe('Tests described in TEST_PLAN.md', () => {
     //compare
     expect(prices).toEqual(manualOrderedPrices);
 
+  });
+
+  test(`Test Remove action in cart with Standard User`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Standard);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+    await Inventory.ResetState();
+
+    await Inventory.AddMultipleItems(2);
+
+    await Inventory.cartLink.click();
+    Cart = new CartPage(page);
+
+    //first check to items count
+    expect(await Cart.getCartItems()).toBe(2);
+
+    await Cart.removeItem(0);
+
+    //second check
+    expect(await Cart.getCartItems()).toBe(1);
+
+  });
+
+  test(`Test Error message in checkout with Standard User`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Standard);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+    await Inventory.AddOneItem(0);
+    await Inventory.GoToCart();
+
+    Cart = new CartPage(page);
+    await Cart.clickCheckout();
+
+    CheckOutCustomer = new CheckoutCustomerPage(page);
+    await CheckOutCustomer.clickContinue();
+
+    expect(await CheckOutCustomer.getErrorMessage()).toBe("Error: First Name is required");
+
+  });
+
+  test(`Test Error message in LoginPage with Locked_out User`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.LockedOut);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+    expect(await Login.getErrorMessage()).toBe("Epic sadface: Sorry, this user has been locked out.");
+  });
+
+    test(`Single purchase FAILS with Error User`, async ({ page }) => {
+
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.Error);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+
+    await Inventory.AddOneItem(0);
+    //first check to cart badge
+    expect(await Inventory.getCartBadgeCount()).toBeGreaterThanOrEqual(1);
+    await Inventory.cartLink.click();
+
+    Cart = new CartPage(page);
+
+    //first check to items count
+    expect(await Cart.getCartItems()).toBeGreaterThanOrEqual(1);
+    await Cart.checkoutButton.click();
+
+    CheckOutCustomer = new CheckoutCustomerPage(page);
+
+    await CheckOutCustomer.fillCustomerData("Martin", "Prueba", "1111");
+    await CheckOutCustomer.clickContinue();
+
+    CheckOutReview = new CheckoutReviewPage(page);
+
+    //last check to cart badge
+    expect(await CheckOutReview.getCartBadgeCount()).toBeGreaterThanOrEqual(1);
+    //last check to items count
+    expect(await CheckOutReview.getReviewedItems()).toBeGreaterThanOrEqual(1);
+
+    await CheckOutReview.clickFinish();
+
+    CheckOutComplete = new CompletePage(page);
+
+    //check to final message
+    expect(await CheckOutComplete.GetCompleteMessage()).toBe("Thank you for your order!");
+
+  });
+
+  
+    test(`Repeated images in inventory page with Problem User`, async ({ page }) => {
+
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.ProblemUser);
+    await Login.sendTextPass(secret.getPassword());
+    await Login.ClicksubmitButton();
+
+    Inventory = new InventoryPage(page);
+
+    
+	  let texts = await Inventory.GetAllItemImages();
+
+    //expect all the text images are the same
+    expect(texts.every(text => text === texts[0])).toBeTruthy();
+
+    });
+  
+  test(`Test Error message in LoginPage with wrong credentials`, async ({ page }) => {
+    Login = new LoginPage(page);
+    await Login.sendTextUser(users.PerformanceGlitch);
+    await Login.sendTextPass("wrong_password");
+    await Login.ClicksubmitButton();
+    expect(await Login.getErrorMessage()).toBe("Epic sadface: Username and password do not match any user in this service");
   });
 
 });

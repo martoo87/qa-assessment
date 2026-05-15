@@ -24,6 +24,14 @@ export class CartPage extends basepage {
     }
 
     /**
+     * Remove an item from the cart by index
+     * @param index - The index of the item to remove
+     */
+    async removeItem(index:number){
+        await this.cartItems.getByRole('button', {name: "Remove"}).nth(index).click();
+    }
+
+    /**
      * Click the checkout button to proceed to checkout
      */
     async clickCheckout() {
