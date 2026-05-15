@@ -1,0 +1,15 @@
+{
+  "name": "qa-assessment",
+  "version": "1.0.0",
+  "description": "Thank you for your interest in the QA Engineer role at **Psynth**! This take-home assessment is designed to evaluate your hands-on skills in E2E test automation, CI/CD integration, test planning, and bug reporting.",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.7.0"
+  }
+}
